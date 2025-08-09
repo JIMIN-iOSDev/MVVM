@@ -39,13 +39,13 @@ final class AgeViewController: UIViewController {
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
     }
     
-    func configureHierarchy() {
+    private func configureHierarchy() {
         view.addSubview(textField)
         view.addSubview(resultButton)
         view.addSubview(label)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         textField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.horizontalEdges.equalToSuperview().inset(20)
@@ -69,7 +69,7 @@ final class AgeViewController: UIViewController {
         view.endEditing(true)
     }
     
-    @objc func resultButtonTapped() {
+    @objc private func resultButtonTapped() {
         view.endEditing(true)
         viewModel.text = textField.text
         label.text = viewModel.returnText()

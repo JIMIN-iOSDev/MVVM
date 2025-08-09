@@ -44,47 +44,28 @@ enum BMIInputError: Error {
     }
 }
 
-enum BMICategory {
-    case underweight
-    case normal
-    case overweight
-    case obese
-    
-    var description: String {
-        switch self {
-        case .underweight:
-            return "저체중"
-        case .normal:
-            return "정상체중"
-        case .overweight:
-            return "과체중"
-        case .obese:
-            return "비만"
-        }
-    }
-}
-
 final class BMIViewController: UIViewController {
-    let heightTextField: UITextField = {
+    
+    private let heightTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "키를 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let weightTextField: UITextField = {
+    private let weightTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "몸무게를 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let resultButton: UIButton = {
+    private let resultButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemBlue
         button.setTitle("클릭", for: .normal)
         button.layer.cornerRadius = 8
         return button
     }()
-    let resultLabel: UILabel = {
+    private let resultLabel: UILabel = {
         let label = UILabel()
         label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
@@ -99,14 +80,14 @@ final class BMIViewController: UIViewController {
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
     }
     
-    func configureHierarchy() {
+    private func configureHierarchy() {
         view.addSubview(heightTextField)
         view.addSubview(weightTextField)
         view.addSubview(resultButton)
         view.addSubview(resultLabel)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         heightTextField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.horizontalEdges.equalToSuperview().inset(20)
@@ -136,31 +117,30 @@ final class BMIViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func validateInputs() throws -> (height: Double, weight: Double) {
+    private func validateInputs() throws(BMIInputError) -> (height: Double, weight: Double) {
         guard let heightText = heightTextField.text, !heightText.isEmpty else {
-            throw BMIInputError.emptyHeight
-        }
-        
-        guard let weightText = weightTextField.text, !weightText.isEmpty else {
-            throw BMIInputError.emptyWeight
+            throw .emptyHeight
         }
         
         guard let height = Double(heightText) else {
-            throw BMIInputError.invalidHeightFormat
-        }
-        
-        guard let weight = Double(weightText) else {
-            throw BMIInputError.invalidWeightFormat
+            throw .invalidHeightFormat
         }
         
         guard height >= 100 && height <= 250 else {
-            throw BMIInputError.heightOutOfRange
+            throw .heightOutOfRange
+        }
+        
+        guard let weightText = weightTextField.text, !weightText.isEmpty else {
+            throw .emptyWeight
+        }
+        
+        guard let weight = Double(weightText) else {
+            throw .invalidWeightFormat
         }
         
         guard weight >= 20 && weight <= 300 else {
-            throw BMIInputError.weightOutOfRange
+            throw .weightOutOfRange
         }
-        
         return (height, weight)
     }
     
@@ -184,11 +164,8 @@ final class BMIViewController: UIViewController {
             let bmi = calculateBMI(height: height, weight: weight)
             let bmiText = String(format: "%.1f", bmi)
             resultLabel.text = "BMI: \(bmiText)"
-        } catch let error as BMIInputError {
-            showErrorAlert(error: error)
-            resultLabel.text = "입력값을 확인해주세요"
         } catch {
-            resultLabel.text = "오류 발생"
+            showErrorAlert(error: error)
         }
     }
 }

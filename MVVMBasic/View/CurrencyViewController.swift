@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class CurrencyViewController: UIViewController {
+final class CurrencyViewController: UIViewController {
     
     private let viewModel = CurrencyViewModel()
     

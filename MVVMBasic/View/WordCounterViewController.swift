@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
  
-class WordCounterViewController: UIViewController {
+final class WordCounterViewController: UIViewController {
     
     private let viewModel = WordCounterViewModel()
     

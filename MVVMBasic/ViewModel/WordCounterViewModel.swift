@@ -7,8 +7,7 @@
 
 import Foundation
 
-
-class WordCounterViewModel {
+final class WordCounterViewModel {
     var count: Int?
     
     func updateCount() -> String {

@@ -64,7 +64,7 @@ enum BirthDateError: Error {
     }
 }
 
-class BirthDayViewController: UIViewController {
+final class BirthDayViewController: UIViewController {
     let yearTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "년도를 입력해주세요"

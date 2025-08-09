@@ -24,12 +24,11 @@ enum AgeInputError: Error {
     }
 }
 
-class AgeViewController: UIViewController {
+final class AgeViewController: UIViewController {
     let textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "나이를 입력해주세요"
         textField.borderStyle = .roundedRect
-        textField.keyboardType = .numberPad
         return textField
     }()
     let resultButton: UIButton = {
@@ -84,17 +83,17 @@ class AgeViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func validateUserInPut(text: String) throws -> Int {
+    private func validateUserInPut(text: String) throws(AgeInputError) -> Int {
         guard !(text.isEmpty) else {
-            throw AgeInputError.emptyInput
+            throw .emptyInput
         }
         
         guard let age = Int(text) else {
-            throw AgeInputError.invalidFormat
+            throw .invalidFormat
         }
         
         guard age >= 1 && age <= 100 else {
-            throw AgeInputError.outOfRange
+            throw .outOfRange
         }
         return age
     }
@@ -105,12 +104,10 @@ class AgeViewController: UIViewController {
         guard let inputText = textField.text else { return }
         
         do {
-            let validAge = try  validateUserInPut(text: inputText)
+            let validAge = try validateUserInPut(text: inputText)
             label.text = "\(validAge)세가 입력되었습니다"
-        } catch let error as AgeInputError {
-            label.text = error.description
         } catch {
-            label.text = "오류 발생"
+            label.text = error.description
         }
     }
 }

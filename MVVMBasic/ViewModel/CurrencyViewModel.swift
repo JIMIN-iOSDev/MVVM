@@ -7,7 +7,7 @@
 
 import Foundation
 
-class CurrencyViewModel {
+final class CurrencyViewModel {
     var text: String?
     
     func amountText() -> String {

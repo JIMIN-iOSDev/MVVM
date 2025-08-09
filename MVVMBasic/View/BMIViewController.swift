@@ -64,7 +64,7 @@ enum BMICategory {
     }
 }
 
-class BMIViewController: UIViewController {
+final class BMIViewController: UIViewController {
     let heightTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "키를 입력해주세요"

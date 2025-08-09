@@ -7,44 +7,9 @@
 
 import UIKit
 
-enum BMIInputError: Error {
-    case emptyHeight
-    case emptyWeight
-    case invalidHeightFormat
-    case invalidWeightFormat
-    case heightOutOfRange
-    case weightOutOfRange
-    
-    var description: String {
-        switch self {
-        case .emptyHeight:
-            return "키를 입력해주세요"
-        case .emptyWeight:
-            return "몸무게를 입력해주세요"
-        case .invalidHeightFormat:
-            return "올바른 키 형식을 입력해주세요"
-        case .invalidWeightFormat:
-            return "올바른 몸무게 형식을 입력해주세요"
-        case .heightOutOfRange:
-            return "키는 100cm ~ 250cm 사이로 입력해주세요"
-        case .weightOutOfRange:
-            return "몸무게는 20kg ~ 300kg 사이로 입력해주세요"
-        }
-    }
-    
-    var title: String {
-        switch self {
-        case .emptyHeight, .emptyWeight:
-            return "입력 필요"
-        case .invalidHeightFormat, .invalidWeightFormat:
-            return "형식 오류"
-        case .heightOutOfRange, .weightOutOfRange:
-            return "범위 오류"
-        }
-    }
-}
-
 final class BMIViewController: UIViewController {
+    
+    private let viewModel = BMIViewModel()
     
     private let heightTextField: UITextField = {
         let textField = UITextField()
@@ -113,43 +78,6 @@ final class BMIViewController: UIViewController {
         }
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
-    }
-    
-    private func validateInputs() throws(BMIInputError) -> (height: Double, weight: Double) {
-        guard let heightText = heightTextField.text, !heightText.isEmpty else {
-            throw .emptyHeight
-        }
-        
-        guard let height = Double(heightText) else {
-            throw .invalidHeightFormat
-        }
-        
-        guard height >= 100 && height <= 250 else {
-            throw .heightOutOfRange
-        }
-        
-        guard let weightText = weightTextField.text, !weightText.isEmpty else {
-            throw .emptyWeight
-        }
-        
-        guard let weight = Double(weightText) else {
-            throw .invalidWeightFormat
-        }
-        
-        guard weight >= 20 && weight <= 300 else {
-            throw .weightOutOfRange
-        }
-        return (height, weight)
-    }
-    
-    private func calculateBMI(height: Double, weight: Double) -> Double {
-        let heightInMeters = height / 100.0
-        let bmi = weight / (heightInMeters * heightInMeters)
-        return bmi
-    }
-    
     private func showErrorAlert(error: BMIInputError) {
         let alert = UIAlertController(title: error.title, message: error.description, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
@@ -159,12 +87,14 @@ final class BMIViewController: UIViewController {
     @objc func resultButtonTapped() {
         view.endEditing(true)
         
-        do {
-            let (height, weight) = try validateInputs()
-            let bmi = calculateBMI(height: height, weight: weight)
-            let bmiText = String(format: "%.1f", bmi)
-            resultLabel.text = "BMI: \(bmiText)"
-        } catch {
+        viewModel.heightText = heightTextField.text
+        viewModel.weightText = weightTextField.text
+        
+        let result = viewModel.returnText()
+        switch result {
+        case .success(let value):
+            resultLabel.text = value
+        case .failure(let error):
             showErrorAlert(error: error)
         }
     }

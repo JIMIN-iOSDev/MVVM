@@ -32,15 +32,15 @@ enum BirthDateError: Error {
         case .invalidYearFormat:
             return "올바른 년도를 입력해주세요"
         case .invalidMonthFormat:
-            return "올바른 월을 입력해주세요 (1-12)"
+            return "올바른 월을 입력해주세요"
         case .invalidDayFormat:
-            return "올바른 일을 입력해주세요 (1-31)"
+            return "올바른 일을 입력해주세요"
         case .yearOutOfRange:
-            return "년도는 1900년에서 현재년도 사이로 입력해주세요"
+            return "년도는 1900년 ~ 현재년도 사이로 입력해주세요"
         case .monthOutOfRange:
-            return "월은 1월에서 12월 사이로 입력해주세요"
+            return "월은 1월 ~ 12월 사이로 입력해주세요"
         case .dayOutOfRange:
-            return "일은 1일에서 31일 사이로 입력해주세요"
+            return "일은 1일 ~ 31일 사이로 입력해주세요"
         case .invalidDate:
             return "존재하지 않는 날짜입니다"
         case .futureDate:
@@ -65,47 +65,47 @@ enum BirthDateError: Error {
 }
 
 final class BirthDayViewController: UIViewController {
-    let yearTextField: UITextField = {
+    private let yearTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "년도를 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let yearLabel: UILabel = {
+    private let yearLabel: UILabel = {
         let label = UILabel()
         label.text = "년"
         return label
     }()
-    let monthTextField: UITextField = {
+    private let monthTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "월을 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let monthLabel: UILabel = {
+    private let monthLabel: UILabel = {
         let label = UILabel()
         label.text = "월"
         return label
     }()
-    let dayTextField: UITextField = {
+    private let dayTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "일을 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let dayLabel: UILabel = {
+    private let dayLabel: UILabel = {
         let label = UILabel()
         label.text = "일"
         return label
     }()
-    let resultButton: UIButton = {
+    private let resultButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemBlue
         button.setTitle( "클릭", for: .normal)
         button.layer.cornerRadius = 8
         return button
     }()
-    let resultLabel: UILabel = {
+    private let resultLabel: UILabel = {
         let label = UILabel()
         label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
@@ -120,7 +120,7 @@ final class BirthDayViewController: UIViewController {
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
     }
     
-    func configureHierarchy() {
+    private func configureHierarchy() {
         view.addSubview(yearTextField)
         view.addSubview(yearLabel)
         view.addSubview(monthTextField)
@@ -131,7 +131,7 @@ final class BirthDayViewController: UIViewController {
         view.addSubview(resultLabel)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         yearTextField.snp.makeConstraints { make in
             make.top.leading.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.width.equalTo(200)
@@ -184,43 +184,43 @@ final class BirthDayViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func validateDateInputs() throws -> Date {
+    private func validateDateInputs() throws(BirthDateError) -> Date {
         let currentYear = Calendar.current.component(.year, from: Date())
         
         guard let yearText = yearTextField.text, !yearText.isEmpty else {
-            throw BirthDateError.emptyYear
-        }
-        
-        guard let monthText = monthTextField.text, !monthText.isEmpty else {
-            throw BirthDateError.emptyMonth
-        }
-        
-        guard let dayText = dayTextField.text, !dayText.isEmpty else {
-            throw BirthDateError.emptyDay
+            throw .emptyYear
         }
         
         guard let year = Int(yearText) else {
-            throw BirthDateError.invalidYearFormat
-        }
-        
-        guard let month = Int(monthText) else {
-            throw BirthDateError.invalidMonthFormat
-        }
-        
-        guard let day = Int(dayText) else {
-            throw BirthDateError.invalidDayFormat
+            throw .invalidYearFormat
         }
         
         guard year >= 1900 && year <= currentYear else {
-            throw BirthDateError.yearOutOfRange
+            throw .yearOutOfRange
+        }
+        
+        guard let monthText = monthTextField.text, !monthText.isEmpty else {
+            throw .emptyMonth
+        }
+        
+        guard let month = Int(monthText) else {
+            throw .invalidMonthFormat
         }
         
         guard month >= 1 && month <= 12 else {
-            throw BirthDateError.monthOutOfRange
+            throw .monthOutOfRange
+        }
+        
+        guard let dayText = dayTextField.text, !dayText.isEmpty else {
+            throw .emptyDay
+        }
+        
+        guard let day = Int(dayText) else {
+            throw .invalidDayFormat
         }
         
         guard day >= 1 && day <= 31 else {
-            throw BirthDateError.dayOutOfRange
+            throw .dayOutOfRange
         }
         
         var dateComponents = DateComponents()
@@ -229,21 +229,26 @@ final class BirthDayViewController: UIViewController {
         dateComponents.day = day
         
         guard let birthDate = Calendar.current.date(from: dateComponents) else {
-            throw BirthDateError.invalidDate
+            throw .invalidDate
         }
         
-        let today = Date()
-        guard birthDate <= today else {
-            throw BirthDateError.futureDate
+        let selectedYear = Calendar.current.component(.year, from: birthDate)
+        let selectedMonth = Calendar.current.component(.month, from: birthDate)
+        let selectedDay = Calendar.current.component(.day, from: birthDate)
+        
+        if selectedYear != year || selectedMonth != month || selectedDay != day {
+            throw.invalidDate
+        }
+
+        guard birthDate <= Date() else {
+            throw .futureDate
         }
         
         return birthDate
     }
     
     private func calculateDaysFromBirth(birthDate: Date) -> Int {
-        let today = Date()
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: birthDate, to: today)
+        let components = Calendar.current.dateComponents([.day], from: birthDate, to: Date())
         return components.day ?? 0
     }
     
@@ -255,5 +260,12 @@ final class BirthDayViewController: UIViewController {
     
     @objc func resultButtonTapped() {
         view.endEditing(true)
+        
+        do {
+            let result = try validateDateInputs()
+            resultLabel.text = "D + \(calculateDaysFromBirth(birthDate: result))일째 입니다"
+        } catch {
+            showErrorAlert(error: error)
+        }
     }
 }

@@ -7,38 +7,24 @@
 
 import UIKit
 
-enum AgeInputError: Error {
-    case emptyInput
-    case invalidFormat
-    case outOfRange
-    
-    var description: String {
-        switch self {
-        case .emptyInput:
-            return "나이를 입력해주세요"
-        case .invalidFormat:
-            return "올바른 숫자를 입력해주세요"
-        case .outOfRange:
-            return "1세 ~ 100세 사이의 나이를 입력해주세요"
-        }
-    }
-}
-
 final class AgeViewController: UIViewController {
-    let textField: UITextField = {
+    
+    private let viewModel = AgeViewModel()
+    
+    private let textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "나이를 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let resultButton: UIButton = {
+    private let resultButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemBlue
         button.setTitle( "클릭", for: .normal)
         button.layer.cornerRadius = 8
         return button
     }()
-    let label: UILabel = {
+    private let label: UILabel = {
         let label = UILabel()
         label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
@@ -83,31 +69,9 @@ final class AgeViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func validateUserInPut(text: String) throws(AgeInputError) -> Int {
-        guard !(text.isEmpty) else {
-            throw .emptyInput
-        }
-        
-        guard let age = Int(text) else {
-            throw .invalidFormat
-        }
-        
-        guard age >= 1 && age <= 100 else {
-            throw .outOfRange
-        }
-        return age
-    }
-    
     @objc func resultButtonTapped() {
         view.endEditing(true)
-        
-        guard let inputText = textField.text else { return }
-        
-        do {
-            let validAge = try validateUserInPut(text: inputText)
-            label.text = "\(validAge)세가 입력되었습니다"
-        } catch {
-            label.text = error.description
-        }
+        viewModel.text = textField.text
+        label.text = viewModel.returnText()
     }
 }

@@ -13,7 +13,7 @@ class OnboardingViewController: UIViewController {
     private let button = {
         let button = UIButton()
         button.setTitle("프로필 설정", for: .normal)
-        button.tintColor = .white
+        button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 8
         return button

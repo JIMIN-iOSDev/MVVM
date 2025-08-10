@@ -8,27 +8,9 @@
 import UIKit
 import SnapKit
 
-enum NickNameError: Error {
-    case emptyInput
-    case outOfRange
-    case useSpecialCharacter
-    case useNumber
-    
-    var description: String {
-        switch self {
-        case .emptyInput:
-            return "닉네임을 입력해주세요"
-        case .outOfRange:
-            return "2글자 이상 10글자 미만으로 설정해주세요"
-        case .useSpecialCharacter:
-            return "닉네임에 @,#,$,% 는 포함할 수 없어요"
-        case .useNumber:
-            return "닉네임에 숫자는 포함할 수 없어요"
-        }
-    }
-}
-
 final class ProfileViewController: UIViewController {
+    
+    private let viewModel = ProfileViewModel()
 
     private let image = {
         let image = UIImageView()
@@ -128,18 +110,9 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func textFieldDidChange() {
-        guard let text = textField.text else {
-            return
-        }
-        
-        do {
-            let _ = try validateUserInput(text: text)
-            status.text = "사용할 수 있는 닉네임이에요"
-            status.textColor = UIColor(hex: "#186FF2")
-        } catch {
-            status.text = error.description
-            status.textColor = UIColor(hex: "#F04452")
-        }
+        viewModel.text = textField.text
+        status.text = viewModel.returnText().message
+        status.textColor = viewModel.returnText().isValid ? UIColor(hex: "#186FF2") : UIColor(hex: "#F04452")
     }
 }
 
@@ -230,25 +203,5 @@ extension ProfileViewController {
             make.horizontalEdges.equalToSuperview().inset(15)
             make.height.equalTo(44)
         }
-    }
-    
-    private func validateUserInput(text: String) throws(NickNameError) -> String {
-        guard !(text.isEmpty) else {
-            throw .emptyInput
-        }
-        
-        guard text.count >= 2 && text.count <= 10 else {
-            throw .outOfRange
-        }
-        
-        guard text.rangeOfCharacter(from: CharacterSet(charactersIn: "@#$%")) == nil else {
-            throw .useSpecialCharacter
-        }
-        
-        guard text.rangeOfCharacter(from: CharacterSet.decimalDigits) == nil else {
-            throw .useNumber
-        }
-        
-        return text
     }
 }

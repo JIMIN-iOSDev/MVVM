@@ -36,6 +36,10 @@ final class WordCounterViewController: UIViewController {
         setupUI()
         setupConstraints()
         setupTextView()
+        
+        viewModel.outputText.bind { text in
+            self.countLabel.text = text
+        }
     }
      
     private func setupUI() {
@@ -65,8 +69,7 @@ final class WordCounterViewController: UIViewController {
     }
      
     private func updateCharacterCount() {
-        viewModel.count = textView.text.count
-        countLabel.text = viewModel.updateCount()
+        viewModel.inputText.value = "\(textView.text.count)"
     }
 }
  

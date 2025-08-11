@@ -26,7 +26,6 @@ final class AgeViewController: UIViewController {
     }()
     private let label: UILabel = {
         let label = UILabel()
-        label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
         return label
     }()
@@ -37,6 +36,10 @@ final class AgeViewController: UIViewController {
         configureLayout()
         
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+        
+        viewModel.outputText.bind { text in
+            self.label.text = text
+        }
     }
     
     private func configureHierarchy() {
@@ -71,7 +74,6 @@ final class AgeViewController: UIViewController {
     
     @objc private func resultButtonTapped() {
         view.endEditing(true)
-        viewModel.text = textField.text
-        label.text = viewModel.returnText()
+        viewModel.inputText.value = textField.text ?? ""
     }
 }

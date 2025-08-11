@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let profileCV = UINavigationController(rootViewController: OnboardingViewController())
         profileCV.tabBarItem = UITabBarItem(title: "프로필", image: UIImage(systemName: "person.circle"), tag: 5)
         
-        tabBarController.viewControllers = [birthDayVC, worldCounterVC, currencyVC, profileCV, ageVC, bmiVC]
+        tabBarController.viewControllers = [ageVC, bmiVC, birthDayVC, worldCounterVC, currencyVC, profileCV]
         tabBarController.tabBar.tintColor = .systemBlue
         tabBarController.tabBar.unselectedItemTintColor = .systemGray
         

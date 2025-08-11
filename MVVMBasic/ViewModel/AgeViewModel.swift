@@ -26,7 +26,26 @@ enum AgeInputError: Error {
 
 final class AgeViewModel {
     
-    var text: String?
+    // VC -> VM
+    let inputText = Observable("")
+    
+    // VM -> VC
+    let outputText = Observable("나이를 입력해주세요")
+    
+    init() {
+        inputText.bind { text in
+            self.validateInput(text: text)
+        }
+    }
+    
+    private func validateInput(text: String) {
+        do {
+            let validAge = try validateUserInPut(text: text)
+            outputText.value = "\(validAge)세가 입력되었습니다"
+        } catch {
+            outputText.value = error.description
+        }
+    }
     
     private func validateUserInPut(text: String) throws(AgeInputError) -> Int {
         guard !(text.isEmpty) else {
@@ -41,16 +60,5 @@ final class AgeViewModel {
             throw .outOfRange
         }
         return age
-    }
-    
-    func returnText() -> String {
-        guard let text else { return "나이를 입력해주세요" }
-        
-        do {
-            let validAge = try validateUserInPut(text: text)
-            return "\(validAge)세가 입력되었습니다"
-        } catch {
-            return error.description
-        }
     }
 }

@@ -46,15 +46,37 @@ enum BMIInputError: Error {
 
 final class BMIViewModel {
     
-    var heightText: String?
-    var weightText: String?
+    let heightText = Observable("")
+    let weightText = Observable("")
+    let outputText = Observable("")
+    
+    init() {
+        heightText.bind { _ in
+            self.validateInput()
+        }
+        
+        weightText.bind { _ in
+            self.validateInput()
+        }
+    }
+    
+    private func validateInput() {
+        do {
+            let (height, weight) = try validateInputs()
+            let bmi = calculateBMI(height: height, weight: weight)
+            let bmiText = String(format: "%.1f", bmi)
+            outputText.value = "BMI: \(bmiText)"
+        } catch {
+            outputText.value = error.description
+        }
+    }
     
     private func validateInputs() throws(BMIInputError) -> (height: Double, weight: Double) {
-        guard let heightText, !heightText.isEmpty else {
+        guard !heightText.value.isEmpty else {
             throw .emptyHeight
         }
         
-        guard let height = Double(heightText) else {
+        guard let height = Double(heightText.value) else {
             throw .invalidHeightFormat
         }
         
@@ -62,11 +84,11 @@ final class BMIViewModel {
             throw .heightOutOfRange
         }
         
-        guard let weightText, !weightText.isEmpty else {
+        guard !weightText.value.isEmpty else {
             throw .emptyWeight
         }
         
-        guard let weight = Double(weightText) else {
+        guard let weight = Double(weightText.value) else {
             throw .invalidWeightFormat
         }
         
@@ -80,16 +102,5 @@ final class BMIViewModel {
         let heightInMeters = height / 100.0
         let bmi = weight / (heightInMeters * heightInMeters)
         return bmi
-    }
-    
-    func returnText() -> Result<String, BMIInputError> {
-        do {
-            let (height, weight) = try validateInputs()
-            let bmi = calculateBMI(height: height, weight: weight)
-            let bmiText = String(format: "%.1f", bmi)
-            return .success("BMI: \(bmiText)")
-        } catch {
-            return .failure(error)
-        }
     }
 }

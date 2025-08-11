@@ -43,6 +43,10 @@ final class BMIViewController: UIViewController {
         configureLayout()
         
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+        
+        viewModel.outputText.bind { text in
+            self.resultLabel.text = text
+        }
     }
     
     private func configureHierarchy() {
@@ -78,24 +82,15 @@ final class BMIViewController: UIViewController {
         }
     }
     
-    private func showErrorAlert(error: BMIInputError) {
-        let alert = UIAlertController(title: error.title, message: error.description, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
-    }
+//    private func showErrorAlert(error: BMIInputError) {
+//        let alert = UIAlertController(title: error.title, message: error.description, preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "확인", style: .default))
+//        present(alert, animated: true)
+//    }
     
     @objc func resultButtonTapped() {
         view.endEditing(true)
-        
-        viewModel.heightText = heightTextField.text
-        viewModel.weightText = weightTextField.text
-        
-        let result = viewModel.returnText()
-        switch result {
-        case .success(let value):
-            resultLabel.text = value
-        case .failure(let error):
-            showErrorAlert(error: error)
-        }
+        viewModel.heightText.value = heightTextField.text ?? ""
+        viewModel.weightText.value = weightTextField.text ?? ""
     }
 }

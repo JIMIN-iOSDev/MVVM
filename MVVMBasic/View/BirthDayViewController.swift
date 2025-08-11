@@ -54,7 +54,6 @@ final class BirthDayViewController: UIViewController {
     }()
     private let resultLabel: UILabel = {
         let label = UILabel()
-        label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
         return label
     }()
@@ -65,6 +64,10 @@ final class BirthDayViewController: UIViewController {
         configureLayout()
         
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+        
+        viewModel.outputText.bind { text in
+            self.resultLabel.text = text
+        }
     }
     
     private func configureHierarchy() {
@@ -131,24 +134,17 @@ final class BirthDayViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func showErrorAlert(error: BirthDateError) {
-        let alert = UIAlertController(title: error.title, message: error.description, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
-    }
+//    private func showErrorAlert(error: BirthDateError) {
+//        let alert = UIAlertController(title: error.title, message: error.description, preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "확인", style: .default))
+//        present(alert, animated: true)
+//    }
     
     @objc func resultButtonTapped() {
         view.endEditing(true)
         
-        viewModel.yearText = yearTextField.text
-        viewModel.monthText = monthTextField.text
-        viewModel.dayText = dayTextField.text
-        
-        switch viewModel.resultText() {
-        case .success(let success):
-            resultLabel.text = success
-        case .failure(let failure):
-            showErrorAlert(error: failure)
-        }
+        viewModel.yearText.value = yearTextField.text ?? ""
+        viewModel.monthText.value = monthTextField.text ?? ""
+        viewModel.dayText.value = dayTextField.text ?? ""
     }
 }

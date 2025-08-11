@@ -65,18 +65,43 @@ enum BirthDateError: Error {
 
 class BirthDayViewModel {
     
-    var yearText: String?
-    var monthText: String?
-    var dayText: String?
+    let yearText = Observable("")
+    let monthText = Observable("")
+    let dayText = Observable("")
+    
+    let outputText = Observable("")
+    
+    init() {
+        yearText.bind { _ in
+            self.validateInput()
+        }
+        
+        monthText.bind { _ in
+            self.validateInput()
+        }
+        
+        dayText.bind { _ in
+            self.validateInput()
+        }
+    }
+    
+    private func validateInput() {
+        do {
+            let result = try validateDateInputs()
+            outputText.value = "D + \(calculateDaysFromBirth(birthDate: result)) 일째 입니다"
+        } catch {
+            outputText.value = error.description
+        }
+    }
     
     private func validateDateInputs() throws(BirthDateError) -> Date {
         let currentYear = Calendar.current.component(.year, from: Date())
         
-        guard let yearText, !yearText.isEmpty else {
+        guard !yearText.value.isEmpty else {
             throw .emptyYear
         }
         
-        guard let year = Int(yearText) else {
+        guard let year = Int(yearText.value) else {
             throw .invalidYearFormat
         }
         
@@ -84,11 +109,11 @@ class BirthDayViewModel {
             throw .yearOutOfRange
         }
         
-        guard let monthText, !monthText.isEmpty else {
+        guard !monthText.value.isEmpty else {
             throw .emptyMonth
         }
         
-        guard let month = Int(monthText) else {
+        guard let month = Int(monthText.value) else {
             throw .invalidMonthFormat
         }
         
@@ -96,11 +121,11 @@ class BirthDayViewModel {
             throw .monthOutOfRange
         }
         
-        guard let dayText, !dayText.isEmpty else {
+        guard !dayText.value.isEmpty else {
             throw .emptyDay
         }
         
-        guard let day = Int(dayText) else {
+        guard let day = Int(dayText.value) else {
             throw .invalidDayFormat
         }
         
@@ -135,14 +160,5 @@ class BirthDayViewModel {
     private func calculateDaysFromBirth(birthDate: Date) -> Int {
         let components = Calendar.current.dateComponents([.day], from: birthDate, to: Date())
         return components.day ?? 0
-    }
-    
-    func resultText() -> Result<String, BirthDateError> {
-        do {
-            let result = try validateDateInputs()
-            return .success("D + \(calculateDaysFromBirth(birthDate: result)) 일째 입니다")
-        } catch {
-            return .failure(error)
-        }
     }
 }

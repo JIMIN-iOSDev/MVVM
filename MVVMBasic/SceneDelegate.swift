@@ -30,8 +30,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         currencyVC.tabBarItem = UITabBarItem(title: "환전", image: UIImage(systemName: "dollarsign"), tag: 4)
         let profileCV = UINavigationController(rootViewController: OnboardingViewController())
         profileCV.tabBarItem = UITabBarItem(title: "프로필", image: UIImage(systemName: "person.circle"), tag: 5)
+        let mapVC = MapViewController()
+        mapVC.tabBarItem = UITabBarItem(title: "식당", image: UIImage(systemName: "fork.knife"), tag: 6)
         
-        tabBarController.viewControllers = [ageVC, bmiVC, birthDayVC, worldCounterVC, currencyVC, profileCV]
+        tabBarController.viewControllers = [ageVC, bmiVC, birthDayVC, worldCounterVC, currencyVC, profileCV, mapVC]
         tabBarController.tabBar.tintColor = .systemBlue
         tabBarController.tabBar.unselectedItemTintColor = .systemGray
         

@@ -9,15 +9,17 @@ import UIKit
 import MapKit
 import SnapKit
 
-class MapViewController: UIViewController {
+final class MapViewController: UIViewController {
      
     private let mapView = MKMapView()
+    private var restaurants = RestaurantList.restaurantArray
+    private var filter: [Restaurant] = []
      
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupMapView()
-        addSeoulStationAnnotation()
+        addRestaurantAnnotaion(filter: restaurants)
     }
      
     private func setupUI() {
@@ -43,7 +45,7 @@ class MapViewController: UIViewController {
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .none
          
-        let seoulStationCoordinate = CLLocationCoordinate2D(latitude: 37.5547, longitude: 126.9706)
+        let seoulStationCoordinate = CLLocationCoordinate2D(latitude: 37.518820573402, longitude: 126.89986969097)
         let region = MKCoordinateRegion(
             center: seoulStationCoordinate,
             latitudinalMeters: 2000,
@@ -52,12 +54,26 @@ class MapViewController: UIViewController {
         mapView.setRegion(region, animated: true)
     }
     
-    private func addSeoulStationAnnotation() {
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2D(latitude: 37.5547, longitude: 126.9706)
-        annotation.title = "서울역"
-        annotation.subtitle = "대한민국 서울특별시"
-        mapView.addAnnotation(annotation)
+    private func addRestaurantAnnotaion(filter: [Restaurant]) {
+        mapView.removeAnnotations(mapView.annotations)
+        for restaurant in filter {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: restaurant.latitude, longitude: restaurant.longitude)
+            annotation.title = restaurant.name
+            annotation.subtitle = restaurant.address
+            mapView.addAnnotation(annotation)
+        }
+    }
+    
+    private func filterCategory(category: String) {
+        restaurants = RestaurantList.restaurantArray
+        filter.removeAll()
+        for item in restaurants {
+            if item.category == category {
+                filter.append(item)
+            }
+        }
+        restaurants = filter
     }
      
     @objc private func rightBarButtonTapped() {
@@ -67,16 +83,31 @@ class MapViewController: UIViewController {
             preferredStyle: .actionSheet
         )
         
-        let alert1Action = UIAlertAction(title: "얼럿 1", style: .default) { _ in
+        let alert1Action = UIAlertAction(title: "한식", style: .default) { _ in
             print("얼럿 1이 선택되었습니다.")
+            self.filterCategory(category: "한식")
+            self.addRestaurantAnnotaion(filter: self.restaurants)
+            print("\(self.restaurants)")
         }
         
-        let alert2Action = UIAlertAction(title: "얼럿 2", style: .default) { _ in
+        let alert2Action = UIAlertAction(title: "일식", style: .default) { _ in
             print("얼럿 2가 선택되었습니다.")
+            self.filterCategory(category: "일식")
+            self.addRestaurantAnnotaion(filter: self.restaurants)
+            print("\(self.restaurants)")
         }
         
-        let alert3Action = UIAlertAction(title: "얼럿 3", style: .default) { _ in
+        let alert3Action = UIAlertAction(title: "분식", style: .default) { _ in
             print("얼럿 3이 선택되었습니다.")
+            self.filterCategory(category: "분식")
+            self.addRestaurantAnnotaion(filter: self.restaurants)
+            print("\(self.restaurants)")
+        }
+        
+        let alert4Action = UIAlertAction(title: "전체보기", style: .default) { _ in
+            print("얼럿 4가 선택되었습니다.")
+            self.addRestaurantAnnotaion(filter: RestaurantList.restaurantArray)
+            print("\(self.restaurants)")
         }
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel) { _ in
@@ -86,6 +117,7 @@ class MapViewController: UIViewController {
         alertController.addAction(alert1Action)
         alertController.addAction(alert2Action)
         alertController.addAction(alert3Action)
+        alertController.addAction(alert4Action)
         alertController.addAction(cancelAction)
          
         present(alertController, animated: true, completion: nil)
